@@ -1,0 +1,20 @@
+{
+  "name": "chatiku",
+  "version": "1.0.0",
+  "description": "A collection of open-source chatiku components",
+  "dependencies": {
+    "u-css": "^2.1.4",
+    "u-elem": "^9.5.1",
+    "u-rand": "^1.1.3",
+    "wapp": "^18.5.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/manvalls/chatiku.git"
+  },
+  "bugs": {
+    "url": "https://github.com/manvalls/chatiku/issues"
+  },
+  "author": "Manuel Valls Fernández <manolo@vlrz.es>",
+  "license": "LGPL-3.0"
+}
