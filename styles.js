@@ -25,6 +25,16 @@ css.add('html, body',{
 
 // ----
 
+exports.hoverOutline = unique();
+
+css.add(`.${exports.hoverOutline}:hover`,{
+  outline: '3px solid #737373'
+});
+
+css.add(`.${exports.hoverOutline}`,{
+  outline: '3px solid white'
+});
+
 exports.buttonContainer = unique();
 exports.smallButtonContainer = unique();
 exports.column = unique();
@@ -105,6 +115,7 @@ exports.textInput = unique();
 
 css.add('.' + exports.textInput,{
   fontSize: '18px',
+  fontFamily: 'Noto Sans',
   lineHeight: '18px',
   padding: '15px',
   borderRadius: '2px',

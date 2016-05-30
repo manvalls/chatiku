@@ -9,7 +9,7 @@ var app = require('wapp'),
     animation = css.add(`@keyframes ${animationName}`),
     toRule = animation.add('to'),
     fromRule = animation.add('from'),
-    container,element,currentTask,firstTask;
+    container,element,currentTask;
 
 $('body',
   when(open.getter,['div',
@@ -27,19 +27,6 @@ $('body',
         animationDuration: '700ms'
       }
     },
-    ['div','×',{style: {
-      position: 'absolute',
-      top: '0px',
-      right: '10px',
-      fontSize: '45px',
-      lineHeight: '45px',
-      fontFamily: 'Noto Sans',
-      cursor: 'pointer',
-      color: 'rgb(126, 126, 126)',
-      zIndex: 2000
-    }},on('click',e => {
-      if(firstTask) firstTask.accept();
-    })],
     function(){
       container = this;
     }
@@ -55,8 +42,6 @@ exports.open = function(elem,x,y){
       prevElement,e,pe,to;
 
   if(!open.value){
-
-    firstTask = task;
 
     if(y < innerHeight / 2) y = 0;
     else y = innerHeight;
@@ -169,11 +154,12 @@ exports.open = function(elem,x,y){
   $(container,
     e = element = $('div',{style: {
       position: 'absolute',
-      top: '10px',
+      top: '0px',
       bottom: '0px',
       left: '0%',
       right: '0%',
       opacity: 1,
+      overflow: 'auto',
       transition: 'all 700ms'
     }},elem)
   );
