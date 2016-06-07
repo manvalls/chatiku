@@ -21,19 +21,12 @@ module.exports = function(){
         }
       },
       on('input',onChange),
-      on('change',onChange),
-      on('window.focus',onFocus)
+      on('change',onChange)
     )
   );
 
   function onChange(){
     if(input.files && input.files.length) res.accept(input.files[0]);
-  }
-
-  function onFocus(){
-    setTimeout(function(){
-      res.reject();
-    },100);
   }
 
   res.yielded.listen(function(){
