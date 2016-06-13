@@ -2,9 +2,9 @@ var walk = require('y-walk'),
     Cb = require('y-callback');
 
 module.exports = walk(function*(){
-  var req,res,db;
+  var req,res,db,version;
 
-  req = indexedDB.open('chatiku',2);
+  req = indexedDB.open('chatiku',3);
 
   res = yield {
     success: req.onsuccess = Cb(),
@@ -15,8 +15,11 @@ module.exports = walk(function*(){
 
   if(res.upgrade){
 
+    version = res.upgrade[0].oldVersion;
     db = req.result;
-    db.createObjectStore('profile');
+
+    if(version < 2) db.createObjectStore('profile');
+    if(version < 3) db.createObjectStore('history');
 
     res = yield {
       success: req.onsuccess = Cb(),
