@@ -26,7 +26,7 @@ exports.addMsg = walk.wrap(function*(room,peer,msg){
   t1 = new Date();
 
   if(!msg.value) return;
-  storage = db.transaction(['history'],'readwrite').objectStore('history');
+  storage = db.transaction(['history'],'readonly').objectStore('history');
   req = storage.get(room);
 
   yield {
@@ -50,7 +50,7 @@ exports.addMsg = walk.wrap(function*(room,peer,msg){
   };
 
   yield updatePeer(data,peer);
-  storage.put(data,room);
+  db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
 
 });
 
@@ -58,7 +58,7 @@ exports.updatePeer = walk.wrap(function*(room,peer){
   var db = yield require('./db'),
       storage,req,data;
 
-  storage = db.transaction(['history'],'readwrite').objectStore('history');
+  storage = db.transaction(['history'],'readonly').objectStore('history');
   req = storage.get(room);
 
   yield {
@@ -72,7 +72,7 @@ exports.updatePeer = walk.wrap(function*(room,peer){
   };
 
   yield updatePeer(data,peer);
-  storage.put(data,room);
+  db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
 
 });
 
