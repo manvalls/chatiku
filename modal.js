@@ -1,6 +1,7 @@
 var app = require('wapp'),
     Setter = require('y-setter'),
     {when,on} = require('u-elem/hooks'),
+    {blankButton} = require('./styles'),
     apply = require('u-proto/apply'),
     $ = require('u-elem'),
     css = require('u-css'),
@@ -29,7 +30,20 @@ $('body',
     },
     function(){
       container = this;
-    }
+    },
+    ['div',
+      {
+        className: `icon-ok-1 ${blankButton}`,
+        style: {
+          position: 'absolute',
+          bottom: '15px',
+          right: '20px',
+          fontSize: '35px',
+          lineHeight: '35px'
+        }
+      },
+      on('click',e => currentTask ? currentTask.accept() : null)
+    ]
   ],{removalTimeout: 700})
 );
 
@@ -42,6 +56,8 @@ exports.open = function(elem,x,y){
       prevElement,e,pe,to;
 
   if(!open.value){
+
+    currentTask = task;
 
     if(y < innerHeight / 2) y = 0;
     else y = innerHeight;
@@ -155,7 +171,7 @@ exports.open = function(elem,x,y){
     e = element = $('div',{style: {
       position: 'absolute',
       top: '0px',
-      bottom: '0px',
+      bottom: '65px',
       left: '0%',
       right: '0%',
       opacity: 1,
