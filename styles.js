@@ -79,6 +79,33 @@ css.add('.' + exports.blankInput,{
   color: '#4a4a4a'
 });
 
+exports.stdButton = unique();
+
+css.add(`.${exports.stdButton}`,{
+  background: 'rgb(233, 233, 233)',
+  border: 'none',
+  outline: 'none',
+  boxShadow: 'none',
+  transition: 'all 250ms',
+  cursor: 'pointer',
+  fontFamily: 'Noto Sans',
+  fontWeight: 'bold',
+  padding: '5px 10px',
+  borderRadius: '3px',
+  fontSize: '16px',
+  color: '#787878'
+});
+
+css.add(`.${exports.stdButton}:hover`,{
+  background: 'lightgray',
+  color: '#4a4a4a'
+});
+
+css.add(`.${exports.stdButton}:active`,{
+  background: 'gray',
+  color: 'white'
+});
+
 exports.blankButton = unique();
 
 css.add('.' + exports.blankButton,{
