@@ -175,6 +175,17 @@ exports.apply = walk.wrap(function*(room,messages){
 
 });
 
+exports.erase = walk.wrap(function*(room){
+  var db = yield require('./db'),
+      req = db.transaction(['history'],'readwrite').objectStore('history').delete(room);
+
+  yield {
+    success: req.onsuccess = Cb(),
+    error: req.onerror = Cb()
+  };
+
+});
+
 function t0Sort(a,b){
   if(a.t0 > b.t0) return 1;
   if(a.t0 < b.t0) return -1;
