@@ -4,7 +4,7 @@ var walk = require('y-walk'),
 module.exports = walk(function*(){
   var req,res,db,version;
 
-  req = indexedDB.open('chatiku',3);
+  req = indexedDB.open('chatiku',4);
 
   res = yield {
     success: req.onsuccess = Cb(),
@@ -20,6 +20,7 @@ module.exports = walk(function*(){
 
     if(version < 2) db.createObjectStore('profile');
     if(version < 3) db.createObjectStore('history');
+    if(version < 4) db.createObjectStore('configuration');
 
     res = yield {
       success: req.onsuccess = Cb(),
