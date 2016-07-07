@@ -5,19 +5,21 @@ var walk = require('y-walk'),
     {Hybrid} = Setter,
     updatePeer;
 
-updatePeer = walk.wrap(function*(data,peer){
+updatePeer = walk.wrap(function*(data,peer,avatars){
   var id,info,pdata;
 
+  avatars = avatars || {};
   if(peer.info) id = (yield peer.info).id;
   else id = peer.id;
 
   pdata = data.peers[id] = data.peers[id] || {};
   pdata.avatar = peer.avatar.value;
+  if(avatars[id]) avatars[id].value = peer.avatar.value;
   if(peer.info) pdata.self = true;
 
 });
 
-exports.addMsg = walk.wrap(function*(room,peer,msg){
+exports.addMsg = walk.wrap(function*(room,peer,msg,avatars){
   var db = yield require('./db'),
       t0,t1,storage,req,data,id;
 
@@ -49,12 +51,12 @@ exports.addMsg = walk.wrap(function*(room,peer,msg){
     t1: t1
   };
 
-  yield updatePeer(data,peer);
+  yield updatePeer(data,peer,avatars);
   db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
 
 });
 
-exports.updatePeer = walk.wrap(function*(room,peer){
+exports.updatePeer = walk.wrap(function*(room,peer,avatars){
   var db = yield require('./db'),
       storage,req,data;
 
@@ -71,16 +73,17 @@ exports.updatePeer = walk.wrap(function*(room,peer){
     peers: {}
   };
 
-  yield updatePeer(data,peer);
+  yield updatePeer(data,peer,avatars);
   db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
 
 });
 
-exports.apply = walk.wrap(function*(room,messages){
+exports.apply = walk.wrap(function*(room,messages,avatars){
   var db = yield require('./db'),
       storage,req,data,newData,key,
       array,blocks,msg,block,tmp;
 
+  avatars = avatars || {};
   storage = db.transaction(['history'],'readwrite').objectStore('history');
   req = storage.get(room);
 
@@ -121,12 +124,10 @@ exports.apply = walk.wrap(function*(room,messages){
     if(block && (block.peer != msg.peer || block.date.value < msg.t0 - 10e3)){
 
       block.peer = {
-        avatar: new Hybrid((newData.peers[block.peer] || {}).avatar)
+        avatar: avatars[block.peer] = avatars[block.peer] || new Hybrid((newData.peers[block.peer] || {}).avatar)
       };
 
-      block.peer.avatar.url = getUrl(block.peer.avatar);
-      block.peer.avatar.freeze();
-
+      block.peer.avatar.url = block.peer.avatar.url || getUrl(block.peer.avatar);
       blocks.push(block);
       block = null;
 
@@ -157,12 +158,10 @@ exports.apply = walk.wrap(function*(room,messages){
   if(block){
 
     block.peer = {
-      avatar: new Hybrid((newData.peers[block.peer] || {}).avatar)
+      avatar: avatars[block.peer] = avatars[block.peer] || new Hybrid((newData.peers[block.peer] || {}).avatar)
     };
 
-    block.peer.avatar.url = getUrl(block.peer.avatar);
-    block.peer.avatar.freeze();
-
+    block.peer.avatar.url = block.peer.avatar.url || getUrl(block.peer.avatar);
     blocks.push(block);
     block = null;
 
