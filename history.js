@@ -1,11 +1,12 @@
 var walk = require('y-walk'),
     Cb = require('y-callback'),
     getUrl = require('./get-avatar-url'),
+    {avatars: defaultAvatars} = require('./constants'),
     Setter = require('y-setter'),
     {Hybrid} = Setter,
     updatePeer;
 
-updatePeer = walk.wrap(function*(data,peer,avatars){
+updatePeer = walk.wrap(function*(data,peer,avatars,scope){
   var id,info,pdata;
 
   avatars = avatars || {};
@@ -13,13 +14,16 @@ updatePeer = walk.wrap(function*(data,peer,avatars){
   else id = peer.id;
 
   pdata = data.peers[id] = data.peers[id] || {};
-  pdata.avatar = peer.avatar.value;
-  if(avatars[id]) avatars[id].value = peer.avatar.value;
+  pdata.avatar = (peer.avatar || {}).value || pdata.avatar || scope + '.assets' + defaultAvatars[
+    id.charCodeAt(id.length - 1) % defaultAvatars.length
+  ];
+
+  if(avatars[id]) avatars[id].value = pdata.avatar;
   if(peer.info) pdata.self = true;
 
 });
 
-exports.addMsg = walk.wrap(function*(room,peer,msg,avatars){
+exports.addMsg = walk.wrap(function*(room,peer,msg,avatars,scope){
   var db = yield require('./db'),
       t0,t1,storage,req,data,id;
 
@@ -51,7 +55,7 @@ exports.addMsg = walk.wrap(function*(room,peer,msg,avatars){
     t1: t1
   };
 
-  yield updatePeer(data,peer,avatars);
+  yield updatePeer(data,peer,avatars,scope);
   db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
 
 });
