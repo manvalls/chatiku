@@ -23,16 +23,18 @@ updatePeer = walk.wrap(function*(data,peer,avatars,scope){
 
 });
 
-exports.addMsg = walk.wrap(function*(room,peer,msg,avatars,scope){
+exports.addMsg = walk.wrap(function*(room,peer,msg,avatars,scope,t0,t1){
   var db = yield require('./db'),
-      t0,t1,storage,req,data,id;
+      storage,req,data,id;
 
-  t0 = new Date();
+  t0 = t0 || new Date();
   yield msg.frozen();
-  t1 = new Date();
+  t1 = t1 || new Date();
 
   if(!msg.value) return;
-  storage = db.transaction(['history'],'readonly').objectStore('history');
+  if(peer.info) yield peer.info;
+  
+  storage = db.transaction(['history'],'readwrite').objectStore('history');
   req = storage.get(room);
 
   yield {
@@ -56,7 +58,7 @@ exports.addMsg = walk.wrap(function*(room,peer,msg,avatars,scope){
   };
 
   yield updatePeer(data,peer,avatars,scope);
-  db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
+  storage.put(data,room);
 
 });
 
@@ -64,7 +66,8 @@ exports.updatePeer = walk.wrap(function*(room,peer,avatars){
   var db = yield require('./db'),
       storage,req,data;
 
-  storage = db.transaction(['history'],'readonly').objectStore('history');
+  if(peer.info) yield peer.info;
+  storage = db.transaction(['history'],'readwrite').objectStore('history');
   req = storage.get(room);
 
   yield {
@@ -78,7 +81,7 @@ exports.updatePeer = walk.wrap(function*(room,peer,avatars){
   };
 
   yield updatePeer(data,peer,avatars);
-  db.transaction(['history'],'readwrite').objectStore('history').put(data,room);
+  storage.put(data,room);
 
 });
 
@@ -176,6 +179,28 @@ exports.apply = walk.wrap(function*(room,messages,avatars){
 
   storage.put(newData,room);
 
+});
+
+exports.getAvatar = walk.wrap(function*(room,id,scope){
+  var db = yield require('./db'),
+      storage,req,data;
+
+  storage = db.transaction(['history'],'readonly').objectStore('history');
+  req = storage.get(room);
+
+  yield {
+    success: req.onsuccess = Cb(),
+    error: req.onerror = Cb()
+  };
+
+  data = req.result || {
+    messages: {},
+    peers: {}
+  };
+
+  return (data.peers[id] || {}).avatar || scope + '.assets' + defaultAvatars[
+    id.charCodeAt(id.length - 1) % defaultAvatars.length
+  ];
 });
 
 exports.erase = walk.wrap(function*(room){
