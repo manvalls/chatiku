@@ -1,6 +1,6 @@
 {
   "name": "chatiku",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "A collection of open-source chatiku components",
   "dependencies": {
     "u-css": "^2.1.6",
