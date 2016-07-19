@@ -33,7 +33,8 @@ var before = [
 module.exports = function(room){
   var rule,or;
 
-  room = room || '';
+  room = (room || '').toString();
+  if(room.charAt(0) == '!') return room;
 
   for(rule of before) room = room.replace(...rule);
   room = room.toLowerCase();
