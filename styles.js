@@ -3,7 +3,8 @@ var css = require('u-css'),
     {unique} = require('u-rand'),
     detacher = require('u-elem/detacher'),
     bottomToTop = unique(),
-    mainAnimation = unique();
+    mainAnimation = unique(),
+    filterAnimation = unique();
 
 // fonts
 
@@ -206,6 +207,27 @@ exports.mainAnimation = unique();
 css.add('.' + exports.mainAnimation,{
   animationName: mainAnimation,
   animationDuration: '500ms'
+});
+
+css.add(`@keyframes ${filterAnimation}`,{
+
+  from: {
+    filter: 'hue-rotate(0deg)'
+  },
+
+  to: {
+    filter: 'hue-rotate(360deg)'
+  }
+
+});
+
+exports.filterAnimation = unique();
+
+css.add('.' + exports.filterAnimation,{
+  animationName: filterAnimation,
+  animationDuration: '3s',
+  animationIterationCount: 'infinite',
+  animationTimingFunction: 'linear'
 });
 
 // Bubbles
