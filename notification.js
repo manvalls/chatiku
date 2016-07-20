@@ -2,15 +2,13 @@ var walk = require('y-walk'),
     conf = require('./conf');
 
 exports.show = walk.wrap(function*(room,peer,msg){
-  var registration;
-
-  if(!(yield conf(room,'notifications')).value) return;
 
   yield msg.frozen();
-  registration = yield navigator.serviceWorker.ready;
+  if(!msg.value) return;
   if(document.hasFocus() && !document.hidden) return;
+  if(!(yield conf(room,'notifications')).value) return;
 
-  registration.showNotification(peer.nick.value,{
+  (yield navigator.serviceWorker.ready).showNotification(peer.nick.value,{
     body: msg.value,
     icon: peer.avatar.url.value,
     tag: room,
