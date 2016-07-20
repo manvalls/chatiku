@@ -225,6 +225,7 @@ exports.filterAnimation = unique();
 
 css.add('.' + exports.filterAnimation,{
   animationName: filterAnimation,
+  animationDelay: '2s',
   animationDuration: '3s',
   animationIterationCount: 'infinite',
   animationTimingFunction: 'linear'
