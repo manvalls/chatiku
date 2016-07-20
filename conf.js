@@ -4,7 +4,7 @@ var walk = require('y-walk'),
 
 module.exports = walk.wrap(function*(room,property,h){
   var db = yield require('./db'),
-      req = db.transaction(['configuration'],'readwrite').objectStore('configuration').get(room),
+      req = db.transaction(['configuration'],'readonly').objectStore('configuration').get(room),
       result = h || new Hybrid(),
       data;
 
