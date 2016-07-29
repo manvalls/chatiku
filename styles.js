@@ -1,19 +1,9 @@
 var css = require('u-css'),
-    app = require('wapp'),
     {unique} = require('u-rand'),
     detacher = require('u-elem/detacher'),
     bottomToTop = unique(),
     mainAnimation = unique(),
     filterAnimation = unique();
-
-// fonts
-
-css.add('@font-face',{
-  fontFamily: 'Noto Color Emoji',
-  src: `url('${app.asset('/fonts/NotoColorEmoji/NotoColorEmoji.ttf')}') format('truetype')`
-});
-
-// ----
 
 // body
 
