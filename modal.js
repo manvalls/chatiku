@@ -6,6 +6,7 @@ var app = require('wapp'),
     $ = require('u-elem'),
     css = require('u-css'),
     open = new Setter(),
+    curve = new Setter.Hybrid(1),
     animationName = require('u-rand').unique(),
     animation = css.add(`@keyframes ${animationName}`),
     toRule = animation.add('to'),
@@ -22,7 +23,10 @@ $('body',
         right: '0px',
         left: '0px',
         zIndex: 1000,
-        transition: 'all 700ms cubic-bezier(.55,0,.1,1)',
+        transition: curve.is(1).iif(
+          'all 700ms cubic-bezier(.55,0,.1,1)',
+          'all 700ms cubic-bezier(.9,0,.45,1)'
+        ),
         backgroundColor: 'white',
         animationName: animationName,
         animationDuration: '700ms'
@@ -57,13 +61,8 @@ exports.open = function(elem,x,y){
 
   if(!open.value){
 
+    curve.set(1);
     currentTask = task;
-
-    if(y < innerHeight / 2) y = 0;
-    else y = innerHeight;
-
-    if(x < innerWidth / 2) x = 0;
-    else x = innerWidth;
 
     rx = x / innerWidth;
     ry = y / innerHeight;
@@ -82,6 +81,8 @@ exports.open = function(elem,x,y){
     open.value = true;
     task.listen(function(){
       var e = container;
+
+      curve.set(2);
       open.value = false;
 
       w = Math.max(innerWidth * (1 - rx),rx * innerWidth);
