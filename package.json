@@ -4,7 +4,7 @@
   "description": "A collection of open-source chatiku components",
   "main": "main.js",
   "dependencies": {
-    "ebjs": "^6.23.0",
+    "ebjs": "^6.23.1",
     "gon": "^1.0.2",
     "u-css": "^2.1.6",
     "u-elem": "^9.6.0",
