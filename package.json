@@ -1,6 +1,6 @@
 {
   "name": "chatiku",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "A collection of open-source chatiku components",
   "main": "main.js",
   "dependencies": {
