@@ -1,6 +1,6 @@
 {
   "name": "chatiku",
-  "version": "2.1.2",
+  "version": "3.0.0",
   "description": "The chatiku apps library",
   "main": "main.js",
   "dependencies": {
