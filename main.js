@@ -3,42 +3,47 @@ var Mp = require('ebjs/connection/message-port'),
     walk = require('y-walk'),
     Emitter = require('y-emitter'),
     define = require('u-proto/define'),
-    gon = require('gon'),
-    peerG = gon(),
     conn = new Resolver.Hybrid(),
     emitter = new Emitter(),
+    direction = Symbol(),
+    cache = Symbol(),
     em = Symbol(),
     rem = Symbol(),
     cn = Symbol(),
+    ch = Symbol(),
     iku = module.exports = emitter.target;
 
-iku.getNick = walk.wrap(function*(){
-  var c = yield conn,
-      res = new Resolver();
+function getYielded(key,connection){
+  var res;
 
-  c.send(['nick',res]);
-  return yield res.yielded;
+  connection[cache] = connection[cache] || new Map();
+  if(connection[cache].has(key)) return connection[cache].get(key);
+
+  res = new Resolver();
+  connection.send([key,res]);
+  connection[cache].set(key,res.yielded);
+
+  return res.yielded;
+}
+
+iku.getNick = walk.wrap(function*(){
+  return yield getYielded( 'nick', yield conn );
 });
 
 iku.getAvatar = walk.wrap(function*(){
-  var c = yield conn,
-      res = new Resolver();
-
-  c.send(['avatar',res]);
-  return yield res.yielded;
+  return yield getYielded( 'avatar', yield conn );
 });
 
 iku.getMessages = walk.wrap(function*(){
+  return yield getYielded( 'messages', yield conn );
+});
+
+iku.sendMessage = walk.wrap(function*(){
   var c = yield conn,
       res = new Resolver();
 
-  c.send(['messages',res]);
+  c.send(['send-msg',res,...arguments]);
   return yield res.yielded;
-});
-
-iku.sendMessage = walk.wrap(function*(msg){
-  var c = yield conn;
-  c.send(['msg',msg]);
 });
 
 iku.showIcon = walk.wrap(function*(){
@@ -46,13 +51,17 @@ iku.showIcon = walk.wrap(function*(){
       res = new Resolver(),
       cnn,target;
 
-  c.send(['icon',res,...arguments]);
+  c.send(['show-icon',res,...arguments]);
   cnn = yield res.yielded;
   cnn.open();
 
   target = yield cnn.until('message');
   target[cn] = cnn;
-  target[define]({remove: removeIcon});
+  target[define]({
+    remove: removeIcon,
+    removed: untilRemoved
+  });
+
   return target;
 });
 
@@ -60,9 +69,16 @@ function removeIcon(){
   this[cn].detach();
 }
 
+function untilRemoved(){
+  return this[cn].until('detached');
+}
+
 iku.focus = walk.wrap(function*(){
-  var c = yield conn;
-  c.send(['focus']);
+  var c = yield conn,
+      res = new Resolver();
+
+  c.send(['focus',res,...arguments]);
+  return yield res.yielded;
 });
 
 iku.run = walk.wrap(function*(){
@@ -80,53 +96,44 @@ iku.close = walk.wrap(function*(){
 
 class Peer extends Emitter.Target{
 
-  constructor(conn,remote){
+  constructor(conn,dir){
     super(em);
     remote.open();
+    this[cn] = conn;
+    this[direction] = dir;
 
     conn.emitter = this[em];
-    gon.apply(conn,peerG);
+    conn.once('detached',onceDetached);
     conn.open();
-
-    this[cn] = conn;
-    this[rem] = remote;
   }
 
-  send(msg){
-    this[cn].send(msg);
+  getNick(){
+    return getYielded( 'nick', this[cn] );
+  }
+
+  getAvatar(){
+    return getYielded( 'avatar', this[cn] );
+  }
+
+  getMessages(){
+    return getYielded( 'messages', this[cn] );
+  }
+
+  getConnection(){
+    var res = new Resolver();
+    this[cn].send(['connection',res]);
+    return res.yielded;
+  }
+
+  detach(){
+    this[cn].detach();
   }
 
 }
 
-peerG.once('detached',function(){
+function onceDetached(){
   this.emitter.set('detached');
-});
-
-peerG.on('message',function(m){
-  this.emitter.give('message',m);
-});
-
-Peer.prototype[define]({
-
-  getNick: walk.wrap(function*(){
-    var res = new Resolver();
-    this[rem].send(['nick',res]);
-    return yield res.yielded;
-  }),
-
-  getAvatar: walk.wrap(function*(){
-    var res = new Resolver();
-    this[rem].send(['avatar',res]);
-    return yield res.yielded;
-  }),
-
-  getMessages: walk.wrap(function*(){
-    var res = new Resolver();
-    this[rem].send(['messages',res]);
-    return yield res.yielded;
-  })
-
-});
+}
 
 // Connection handlers
 
@@ -142,13 +149,13 @@ if(global.document) global.addEventListener('message',function listener(e){
 },false);
 else conn.accept(Mp(global,{chunkSize: 1e6}));
 
-conn.listen(function(){
+conn.then(conn => {
 
-  this.value.on('message',function(msg){
+  conn.on('message',function(msg){
 
     switch(msg[0]){
 
-      case 'app':
+      case 'peer':
         emitter.give('peer',new Peer(msg[1],msg[2]));
         break;
 
@@ -160,6 +167,6 @@ conn.listen(function(){
 
   });
 
-  this.value.open();
+  conn.open();
 
 });

@@ -8,7 +8,8 @@ var permissions = [
   'SEND_MESSAGE',
   'SHOW_ICON',
   'FOCUS',
-  'RUN'
+  'RUN',
+  'GET_CONNECTION'
 ];
 
 for(let i = 0;i < permissions.length;i++) exports[permissions[i]] = Math.pow(2,i);

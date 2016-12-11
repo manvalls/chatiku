@@ -5,7 +5,6 @@
   "main": "main.js",
   "dependencies": {
     "ebjs": "^6.23.1",
-    "gon": "^1.0.2",
     "u-proto": "^7.0.1",
     "y-resolver": "^9.4.1",
     "y-walk": "^10.0.6"
