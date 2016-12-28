@@ -149,9 +149,9 @@ if(global.document) global.addEventListener('message',function listener(e){
 },false);
 else conn.accept(Mp(global,{chunkSize: 1e6}));
 
-conn.listen(() => {
+conn.listen(function(){
   var conn = this.value;
-  
+
   conn.on('message',function(msg){
 
     switch(msg[0]){
